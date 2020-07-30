@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id           String        @id @default(cuid())
+  createdAt    DateTime      @default(now())
+  email        String        @unique
+  username     String        @unique
+  role         Role          @default(USER)
+  collections  Collection[]
+  collectibles Collectible[]
+}
+
+model Collection {
+  id           String        @id @default(cuid())
+  createdAt    DateTime      @default(now())
+  updateAt     DateTime      @updatedAt
+  title        String
+  description  String?
+  collector    User          @relation(fields: [collectorId], references: [id])
+  collectorId  String
+  collectibles Collectible[]
+}
+
+model Collectible {
+  id           String     @id @default(cuid())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  title        String
+  description  String?
+  value        Float?
+  imageUrl     String?
+  collection   Collection @relation(fields: [collectionId], references: [id])
+  collectionId String
+  collector    User       @relation(fields: [collectorId], references: [id])
+  collectorId  String
+}
